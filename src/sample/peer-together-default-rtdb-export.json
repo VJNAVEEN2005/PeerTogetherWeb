@@ -1,0 +1,283 @@
+{
+  "CSE": {
+    "-OUFyiXeYReTFqdH_ibY": {
+      "academicYear": "2024-2025",
+      "catNumber": "3",
+      "category": "CAT Question Papers",
+      "documentName": "chem cat 3",
+      "driveLink": "https://drive.google.com/file/d/1QAx05TeeG3IlCt_SHTkrkLQw1I727uoa",
+      "publishedBy": "pradheepraj srlvaradje",
+      "publishedDate": "2025-07-03",
+      "section": "B",
+      "semester": "SEM I",
+      "subject": "Chemistry"
+    },
+    "-OUGAsXQueQnmYGNQSHs": {
+      "academicYear": "2025-2026",
+      "category": "Assignments",
+      "documentName": "ent assignment",
+      "driveLink": "https://drive.google.com/file/d/1uPNKDOvF98MXrfoDCL5AUxu1yu-rBLFV",
+      "publishedBy": "pradheepraj srlvaradje",
+      "publishedDate": "2025-07-03",
+      "semester": "SEM VI",
+      "subject": "ENT"
+    },
+    "-OZFa42ldveDSwZ2m4mV": {
+      "academicYear": "2025-2026",
+      "category": "Assignments",
+      "documentName": "AI Assignment",
+      "driveLink": "https://drive.google.com/file/d/1n14zHuc3ihsp-pPhsNRVkFEgkock6Dab",
+      "publishedBy": "sudharsan venkataraman",
+      "publishedDate": "2025-09-03",
+      "semester": "SEM VII",
+      "subject": "AI"
+    },
+    "-OZFaJJTuyyKcT0PnidL": {
+      "academicYear": "2025-2026",
+      "category": "Notes",
+      "documentName": "DSE Notes",
+      "driveLink": "https://drive.google.com/file/d/1qCR9rFyJOmxdFHP6FiArNmYD6VVQ3HE4",
+      "publishedBy": "sudharsan venkataraman",
+      "publishedDate": "2025-09-03",
+      "semester": "SEM VII",
+      "subject": "DSE"
+    },
+    "-OZFgiN3J_sxzkqSWTE7": {
+      "academicYear": "2025-2026",
+      "category": "Notes",
+      "documentName": "PDS UNIT - 1",
+      "publishedBy": "sudharsan venkataraman",
+      "publishedDate": "2025-09-03",
+      "semester": "SEM VII",
+      "subject": "PDS"
+    }
+  },
+  "ECE": {
+    "-OKjgsf-BSYRPLzNr0SG": {
+      "category": "Notes",
+      "documentName": "Mosfet working and construction notes",
+      "driveLink": "https://drive.google.com/file/d/1TmIjP3c4JKE6QcrQaKh4crm4W9odBJjN",
+      "publishedBy": "nishanthan balasubramani",
+      "publishedDate": "2025-03-07",
+      "semester": "Semester 6"
+    }
+  },
+  "MT": {
+    "-OUVuNlRYKjU6zoRFK5r": {
+      "academicYear": "Select Academic Year",
+      "category": "Notes",
+      "documentName": "epo na ena soldrathu",
+      "driveLink": "https://drive.google.com/file/d/1Rt73jJu14ZvrDWR_9QF_sRym9TaTvEVu",
+      "publishedBy": "sreeraam m",
+      "publishedDate": "2025-07-06",
+      "semester": "SEM I",
+      "subject": "Engineering graphics"
+    }
+  },
+  "OEC": {
+    "CE": {
+      "-OMYQTApc7vBfACE61FT": {
+        "category": "Notes",
+        "documentName": "Harbour and airport eng. notes",
+        "driveLink": "https://drive.google.com/file/d/1ZGHudKWbHrm9ywnjJIym7ePjpKrjd9Va",
+        "publishedBy": "pradheepraj srlvaradje",
+        "publishedDate": "2025-03-30",
+        "semester": "Semester 5"
+      }
+    }
+  },
+  "Subjects": {
+    "CIVIL": {
+      "Ancillary stream course 1": {
+        "SUB-1": "Ecofriendly Building Materials for Construction",
+        "SUB-2": "Disaster Management",
+        "SUB-3": "Air, Water and Noise Pollution",
+        "SUB-4": "Environmental Health and Safety",
+        "SUB-5": "Robotics and Automation",
+        "SUB-6": "Instrumentation and Sensor Technologies for Civil Engineering Applications",
+        "SUB-7": "Non-Destructive Testing",
+        "SUB-8": "3D Printing and Advanced Material Science"
+      },
+      "SEM I": {
+        "SUB-1": "Mathematics I",
+        "SUB-2": "Applied Mechanics ",
+        "SUB-3": "Chemistry ",
+        "SUB-4": "Programming for Problem Solving ",
+        "SUB-5": "English for Communication ",
+        "SUB-6": "Basic Engineering Skills Laboratory - II",
+        "SUB-7": "Essence of Indian Traditional Knowledge ",
+        "SUB-8": "Computer Programming Laboratory"
+      },
+      "SEM-II": {
+        "SUB-1": "Mathematics II ",
+        "SUB-2": "Building Technology ",
+        "SUB-3": "Physics ",
+        "SUB-4": "Engineering Graphics ",
+        "SUB-5": "Professional English ",
+        "SUB-6": "Basic Engineering Skills Laboratory - I",
+        "SUB-7": "NSS, Yoga and Health ",
+        "SUB-8": "Physics Laboratory"
+      },
+      "SEM-III": {
+        "SUB-1": "Mechanics of Fluids ",
+        "SUB-2": "Surveying and Geomatics ",
+        "SUB-3": "Mechanics of Solids ",
+        "SUB-4": "Concrete Technology ",
+        "SUB-5": "Entrepreneurship ",
+        "SUB-6": "Universal Human Values ",
+        "SUB-7": "Computer-Aided Civil Engineering Drawing ",
+        "SUB-8": "Surveying Laboratory"
+      },
+      "SEM-IV": {
+        "SUB-1": "Mechanics of Materials ",
+        "SUB-2": "Numerical Methods and Statistics ",
+        "SUB-3": "Geotechnical Engineering ",
+        "SUB-4": "Hydraulics Engineering ",
+        "SUB-5": "Environmental Engineering ",
+        "SUB-6": "Design Thinking ",
+        "SUB-7": "Materials Testing and Evaluation Laboratory-I ",
+        "SUB-8": "Fluid Mechanics Laboratory",
+        "SUB-9": "Advanced Surveying"
+      },
+      "SEM-V": ""
+    },
+    "CSE": {
+      "OEC": {
+        "SUB-1": "Introduction to Python  Programming ",
+        "SUB-2": "Java Programming",
+        "SUB-3": "Fundamentals of RDBMS",
+        "SUB-4": "Essentials of Mobile Application  Development ",
+        "SUB-5": "Introduction to Data Science  "
+      },
+      "PEC": {
+        "SEM V": {
+          "SUB-1": "Python Programming",
+          "SUB-2": "Graphics and Image Processing ",
+          "SUB-3": "Software Design and Testing"
+        },
+        "SEM VI": {
+          "SUB-1": "Data Mining and Data  Warehousing ",
+          "SUB-2": "Internet of Things",
+          "SUB-3": "Mobile Application Development ",
+          "SUB-4": "Mobile Communication and  Computing "
+        },
+        "SEM VII": {
+          "SUB-1": "Embedded Systems ",
+          "SUB-2": "Cloud Computing ",
+          "SUB-3": "Machine Learning",
+          "SUB-4": "Business Intelligence"
+        }
+      },
+      "SEM I": {
+        "SUB-1": "M-1",
+        "SUB-2": "Programming for Problem Solving",
+        "SUB-3": "Chemistry",
+        "SUB-4": "Fundamentals of Computer Organization",
+        "SUB-5": "English for Communication",
+        "SUB-6": "Essence of Indian Traditional Knowledge",
+        "SUB-7": "BE"
+      },
+      "SEM II": {
+        "SUB-1": "Mathematics - II",
+        "SUB-2": "SE",
+        "SUB-3": "PHY",
+        "SUB-4": "EG",
+        "SUB-5": "PE",
+        "SUB-6": "BEE"
+      },
+      "SEM III": {
+        "SUB-1": "DS",
+        "SUB-2": "OOPS",
+        "SUB-3": "COA",
+        "SUB-4": "EDDS",
+        "SUB-5": "BFE",
+        "SUB-6": "Indian Constitution "
+      },
+      "SEM IV": {
+        "SUB-1": "DAA",
+        "SUB-2": "OS",
+        "SUB-3": "DBMS",
+        "SUB-4": "SE",
+        "SUB-5": "Mathematics for Computing"
+      },
+      "SEM V": {
+        "SUB-1": "IEM",
+        "SUB-2": "PT",
+        "SUB-3": "CN",
+        "SUB-4": "ATCD",
+        "SUB-5": "EITK"
+      },
+      "SEM VI": {
+        "SUB-1": "ENT",
+        "SUB-2": "MPMC",
+        "SUB-3": "WT",
+        "SUB-4": "IS"
+      },
+      "SEM VII": {
+        "SUB-1": "AI",
+        "SUB-2": "PDS",
+        "SUB-3": "DSE",
+        "SUB-4": "SEMINAR",
+        "SUB-7": "PE"
+      },
+      "SEM VIII": {
+        "SUB-1": "Open Elective through SWAYAM",
+        "SUB-2": "Open Elective through SWAYAM",
+        "SUB-3": "Comprehensive Test",
+        "SUB-4": "Internship",
+        "SUB-5": "Project Work"
+      }
+    },
+    "EEE": {
+      "OEC": {
+        "SUB-1": "Power Generation Systems ",
+        "SUB-2": "System Dynamics",
+        "SUB-3": "Fuzzy and Neural Systems"
+      },
+      "SEM III": {
+        "SUB-1:": "M-3",
+        "SUB-2:": "Electrical Circuit Analysis",
+        "SUB-3:": "Electromagnetic Fields",
+        "SUB-4:": "Electronic Devices and Circuits",
+        "SUB-5:": "Electrical Machines-1",
+        "SUB-6:": "SS",
+        "SUB-7:": "Indian Constitution"
+      },
+      "SEM IV": {
+        "SUB-1:": "BFE",
+        "SUB-2:": "Analog Electronics",
+        "SUB-3:": "Pulse and Digital Circuits",
+        "SUB-4:": "Electrical Machines-II",
+        "SUB-5": "DSOOP"
+      },
+      "SEM V": {
+        "SUB-1:": "Analog and Digital Integrated Circuits",
+        "SUB-2:": "Power Electronics",
+        "SUB-3:": "Measurement and Instrumentation",
+        "SUB-4:": "Transmission and Distribution",
+        "SUB-6:": "IEM",
+        "Sub-5:": "Control Systems"
+      },
+      "SEM VI": {
+        "SUB-1:": "power system analysis",
+        "SUB-2:": "MPMC",
+        "SUB-3:": "Enterpreneurship",
+        "SUB-4:": "EITK"
+      },
+      "SEM VII": {
+        "SUB-1:": "power system operation and control",
+        "SUB-2:": "protection and switchgear",
+        "SUB-3:": "solid state drives",
+        "SUB-4:": "Seminar",
+        "SUB-5:": "professional ethics"
+      },
+      "SEM VIII": {
+        "SUB-1:": "swayam-1",
+        "SUB-2:": "swayam-2",
+        "SUB-3:": "comprehensive test",
+        "SUB-4:": "internship",
+        "SUB-5:": "project work"
+      }
+    }
+  }
+}
