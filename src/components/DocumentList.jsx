@@ -9,12 +9,15 @@ import {
   TrashIcon
 } from '@heroicons/react/24/outline';
 import { toast } from 'react-hot-toast';
+import DeleteConfirmationDialog from './DeleteConfirmationDialog';
 
 export default function DocumentList({ documents, showFilters = true }) {
   const { deleteDocument } = useData();
   const [filterText, setFilterText] = useState('');
   const [selectedCategory, setSelectedCategory] = useState('');
   const [selectedYear, setSelectedYear] = useState('');
+  const [confirmDelete, setConfirmDelete] = useState(false);
+  const [documentToDelete, setDocumentToDelete] = useState(null);
   
   // Extract unique categories and years for filters
   const categories = [...new Set(documents.map(doc => doc.category).filter(Boolean))];
@@ -31,10 +34,17 @@ export default function DocumentList({ documents, showFilters = true }) {
     return matchesText && matchesCategory && matchesYear;
   });
   
-  const handleDelete = (doc) => {
-    if (window.confirm('Are you sure you want to delete this document?')) {
-      deleteDocument(doc.department, doc.id, doc.subDepartment);
+  const handleDeleteClick = (doc) => {
+    setDocumentToDelete(doc);
+    setConfirmDelete(true);
+  };
+  
+  const handleDeleteConfirm = () => {
+    if (documentToDelete) {
+      deleteDocument(documentToDelete.department, documentToDelete.id, documentToDelete.subDepartment);
       toast.success('Document deleted successfully');
+      setConfirmDelete(false);
+      setDocumentToDelete(null);
     }
   };
   
@@ -130,7 +140,7 @@ export default function DocumentList({ documents, showFilters = true }) {
                     </button>
                   )}
                   <button
-                    onClick={() => handleDelete(doc)}
+                    onClick={() => handleDeleteClick(doc)}
                     className="text-red-500 hover:text-red-700"
                     title="Delete document"
                   >
@@ -184,6 +194,17 @@ export default function DocumentList({ documents, showFilters = true }) {
           ))}
         </div>
       </div>
+    
+      {/* Delete Confirmation Dialog */}
+      <DeleteConfirmationDialog
+        isOpen={confirmDelete}
+        onClose={() => setConfirmDelete(false)}
+        onConfirm={handleDeleteConfirm}
+        title="Delete Document"
+        message={documentToDelete ? `Are you sure you want to delete "${documentToDelete.documentName || documentToDelete.title}"? This action cannot be undone.` : "Are you sure you want to delete this document?"}
+        confirmText="Delete"
+        cancelText="Cancel"
+      />
     </div>
   );
 }

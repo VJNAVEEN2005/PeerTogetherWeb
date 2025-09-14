@@ -7,6 +7,7 @@ import { ref, update } from 'firebase/database';
 import { generateHash } from '../utils/hashUtils';
 import { PlusIcon, TrashIcon, ChevronDownIcon, ChevronRightIcon } from '@heroicons/react/24/outline';
 import DebugInfo from '../components/DebugInfo';
+import DeleteConfirmationDialog from '../components/DeleteConfirmationDialog';
 
 function AdminPage() {
   const { isAdmin, currentUser } = useAuth();
@@ -38,6 +39,11 @@ function AdminPage() {
   const [activeTab, setActiveTab] = useState('documents'); // documents, subjects
   const [expandedDepts, setExpandedDepts] = useState({});
   const [expandedCategories, setExpandedCategories] = useState({});
+  
+  // Delete confirmation state
+  const [confirmDelete, setConfirmDelete] = useState(false);
+  const [deleteType, setDeleteType] = useState(null); // 'subject', 'category', 'department'
+  const [itemToDelete, setItemToDelete] = useState(null);
   const [newDeptName, setNewDeptName] = useState('');
   const [newCategoryName, setNewCategoryName] = useState('');
   const [selectedDept, setSelectedDept] = useState('');
@@ -106,14 +112,22 @@ function AdminPage() {
       toast.success(`Department "${newDeptName}" added successfully`, { id: 'add-dept-toast' });
       setNewDeptName('');
       
-      // Update the state to show the new department without full reload
-      toast.loading('Refreshing data...', { id: 'refresh-toast' });
+      // Manually update the local state to include the new department
+      // This approach avoids a full page reload
+      if (!data.Subjects) {
+        data.Subjects = {};
+      }
       
-      // Small delay to ensure Firebase has time to update
-      setTimeout(() => {
-        window.location.reload(); // Forcing reload for now to ensure data is fresh
-        toast.success('Data refreshed', { id: 'refresh-toast' });
-      }, 1500);
+      // Create the new department in our local data
+      if (!data.Subjects[newDeptName]) {
+        data.Subjects[newDeptName] = {};
+      }
+      
+      // Expand the new department to make it visible
+      setExpandedDepts(prev => ({
+        ...prev,
+        [newDeptName]: true
+      }));
       
     } catch (error) {
       console.error('Error adding department:', error);
@@ -150,14 +164,27 @@ function AdminPage() {
         [selectedDept]: true
       }));
       
-      // Update the state to show the new category without full reload
-      toast.loading('Refreshing data...', { id: 'refresh-toast' });
+      // Manually update the local state to include the new category
+      // This approach avoids a full page reload
+      if (!data.Subjects) {
+        data.Subjects = {};
+      }
       
-      // Small delay to ensure Firebase has time to update
-      setTimeout(() => {
-        window.location.reload(); // Forcing reload for now to ensure data is fresh
-        toast.success('Data refreshed', { id: 'refresh-toast' });
-      }, 1500);
+      if (!data.Subjects[selectedDept]) {
+        data.Subjects[selectedDept] = {};
+      }
+      
+      // Create the new category in our local data
+      if (!data.Subjects[selectedDept][newCategoryName]) {
+        data.Subjects[selectedDept][newCategoryName] = {};
+      }
+      
+      // Expand the new category to make it visible
+      const key = `${selectedDept}-${newCategoryName}`;
+      setExpandedCategories(prev => ({
+        ...prev,
+        [key]: true
+      }));
     } catch (error) {
       console.error('Error adding category:', error);
       toast.error(`Failed to add category: ${error.message}`, { id: 'add-category-toast' });
@@ -195,14 +222,22 @@ function AdminPage() {
         [key]: true
       }));
       
-      // Update the state to show the new subject without full reload
-      toast.loading('Refreshing data...', { id: 'refresh-toast' });
+      // Manually update the local state to include the new subject
+      // This approach avoids a full page reload
+      if (!data.Subjects) {
+        data.Subjects = {};
+      }
       
-      // Small delay to ensure Firebase has time to update
-      setTimeout(() => {
-        window.location.reload(); // Forcing reload for now to ensure data is fresh
-        toast.success('Data refreshed', { id: 'refresh-toast' });
-      }, 1500);
+      if (!data.Subjects[selectedDept]) {
+        data.Subjects[selectedDept] = {};
+      }
+      
+      if (!data.Subjects[selectedDept][selectedCategory]) {
+        data.Subjects[selectedDept][selectedCategory] = {};
+      }
+      
+      // Add the subject to our local data
+      data.Subjects[selectedDept][selectedCategory][newSubjectKey] = newSubjectValue;
     } catch (error) {
       console.error('Error adding subject:', error);
       toast.error(`Failed to add subject: ${error.message}`, { id: 'add-subject-toast' });
@@ -211,42 +246,72 @@ function AdminPage() {
     }
   };
   
-  // Handle deleting a subject
-  const handleDeleteSubject = async (dept, category, subjectKey) => {
-    if (window.confirm(`Are you sure you want to delete subject "${subjectKey}" from ${dept} > ${category}?`)) {
-      try {
-        await deleteSubject(dept, category, subjectKey);
-        toast.success('Subject deleted successfully');
-      } catch (error) {
-        console.error('Error deleting subject:', error);
-        toast.error(`Failed to delete subject: ${error.message}`);
-      }
+  // Prepare subject deletion
+  const handleDeleteSubjectClick = (dept, category, subjectKey) => {
+    setDeleteType('subject');
+    setItemToDelete({ dept, category, subjectKey });
+    setConfirmDelete(true);
+  };
+  
+  // Handle deleting a subject (after confirmation)
+  const handleDeleteSubject = async () => {
+    if (!itemToDelete) return;
+    
+    const { dept, category, subjectKey } = itemToDelete;
+    try {
+      await deleteSubject(dept, category, subjectKey);
+      toast.success('Subject deleted successfully');
+      setConfirmDelete(false);
+      setItemToDelete(null);
+    } catch (error) {
+      console.error('Error deleting subject:', error);
+      toast.error(`Failed to delete subject: ${error.message}`);
     }
   };
   
-  // Handle deleting a category
-  const handleDeleteCategory = async (dept, category) => {
-    if (window.confirm(`Are you sure you want to delete category "${category}" from ${dept}? This will delete all subjects within it.`)) {
-      try {
-        await deleteSubjectCategory(dept, category);
-        toast.success('Category deleted successfully');
-      } catch (error) {
-        console.error('Error deleting category:', error);
-        toast.error(`Failed to delete category: ${error.message}`);
-      }
+  // Prepare category deletion
+  const handleDeleteCategoryClick = (dept, category) => {
+    setDeleteType('category');
+    setItemToDelete({ dept, category });
+    setConfirmDelete(true);
+  };
+  
+  // Handle deleting a category (after confirmation)
+  const handleDeleteCategory = async () => {
+    if (!itemToDelete) return;
+    
+    const { dept, category } = itemToDelete;
+    try {
+      await deleteSubjectCategory(dept, category);
+      toast.success('Category deleted successfully');
+      setConfirmDelete(false);
+      setItemToDelete(null);
+    } catch (error) {
+      console.error('Error deleting category:', error);
+      toast.error(`Failed to delete category: ${error.message}`);
     }
   };
   
-  // Handle deleting a department
-  const handleDeleteDepartment = async (dept) => {
-    if (window.confirm(`Are you sure you want to delete department "${dept}"? This will delete all categories and subjects within it.`)) {
-      try {
-        await deleteSubjectDepartment(dept);
-        toast.success('Department deleted successfully');
-      } catch (error) {
-        console.error('Error deleting department:', error);
-        toast.error(`Failed to delete department: ${error.message}`);
-      }
+  // Prepare department deletion
+  const handleDeleteDepartmentClick = (dept) => {
+    setDeleteType('department');
+    setItemToDelete({ dept });
+    setConfirmDelete(true);
+  };
+  
+  // Handle deleting a department (after confirmation)
+  const handleDeleteDepartment = async () => {
+    if (!itemToDelete) return;
+    
+    const { dept } = itemToDelete;
+    try {
+      await deleteSubjectDepartment(dept);
+      toast.success('Department deleted successfully');
+      setConfirmDelete(false);
+      setItemToDelete(null);
+    } catch (error) {
+      console.error('Error deleting department:', error);
+      toast.error(`Failed to delete department: ${error.message}`);
     }
   };
   
@@ -520,7 +585,7 @@ function AdminPage() {
                                 <button 
                                   onClick={(e) => {
                                     e.stopPropagation();
-                                    handleDeleteDepartment(dept);
+                                    handleDeleteDepartmentClick(dept);
                                   }}
                                   className="text-red-500 hover:text-red-700"
                                   title="Delete department"
@@ -548,7 +613,7 @@ function AdminPage() {
                                         <button 
                                           onClick={(e) => {
                                             e.stopPropagation();
-                                            handleDeleteCategory(dept, category);
+                                            handleDeleteCategoryClick(dept, category);
                                           }}
                                           className="text-red-500 hover:text-red-700"
                                           title="Delete category"
@@ -565,7 +630,7 @@ function AdminPage() {
                                                 <strong>{subjectKey}:</strong> {data.Subjects[dept][category][subjectKey]}
                                               </div>
                                               <button 
-                                                onClick={() => handleDeleteSubject(dept, category, subjectKey)}
+                                                onClick={() => handleDeleteSubjectClick(dept, category, subjectKey)}
                                                 className="text-red-500 hover:text-red-700"
                                                 title="Delete subject"
                                               >
@@ -770,6 +835,36 @@ function AdminPage() {
         </div>
       </div>
       <DebugInfo />
+      
+      {/* Delete Confirmation Dialog */}
+      <DeleteConfirmationDialog
+        isOpen={confirmDelete}
+        onClose={() => {
+          setConfirmDelete(false);
+          setItemToDelete(null);
+        }}
+        onConfirm={() => {
+          if (deleteType === 'subject') {
+            handleDeleteSubject();
+          } else if (deleteType === 'category') {
+            handleDeleteCategory();
+          } else if (deleteType === 'department') {
+            handleDeleteDepartment();
+          }
+        }}
+        title={`Delete ${deleteType ? deleteType.charAt(0).toUpperCase() + deleteType.slice(1) : 'Item'}`}
+        message={
+          deleteType === 'subject' && itemToDelete 
+            ? `Are you sure you want to delete subject "${itemToDelete.subjectKey}" from ${itemToDelete.dept} > ${itemToDelete.category}?`
+            : deleteType === 'category' && itemToDelete
+              ? `Are you sure you want to delete category "${itemToDelete.category}" from ${itemToDelete.dept}? This will delete all subjects within it.`
+              : deleteType === 'department' && itemToDelete
+                ? `Are you sure you want to delete department "${itemToDelete.dept}"? This will delete all categories and subjects within it.`
+                : "Are you sure you want to delete this item?"
+        }
+        confirmText="Delete"
+        cancelText="Cancel"
+      />
     </div>
   );
 }

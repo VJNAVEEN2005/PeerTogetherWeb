@@ -11,6 +11,7 @@ import {
   ArrowLeftIcon,
   ExclamationCircleIcon
 } from '@heroicons/react/24/outline';
+import DeleteConfirmationDialog from './DeleteConfirmationDialog';
 
 export default function DocumentDetail() {
   const { department, id } = useParams();
@@ -200,31 +201,25 @@ export default function DocumentDetail() {
           </button>
         )}
         
-        {!confirmDelete ? (
-          <button
-            onClick={() => setConfirmDelete(true)}
-            className="inline-flex items-center px-4 py-2 border border-transparent text-sm font-medium rounded-md shadow-sm text-white bg-red-600 hover:bg-red-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-red-500"
-          >
-            <TrashIcon className="h-4 w-4 mr-2" />
-            Delete
-          </button>
-        ) : (
-          <div className="flex space-x-2">
-            <button
-              onClick={handleDelete}
-              className="inline-flex items-center px-4 py-2 border border-transparent text-sm font-medium rounded-md shadow-sm text-white bg-red-600 hover:bg-red-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-red-500"
-            >
-              Confirm
-            </button>
-            <button
-              onClick={() => setConfirmDelete(false)}
-              className="inline-flex items-center px-4 py-2 border border-gray-300 shadow-sm text-sm font-medium rounded-md text-gray-700 bg-white hover:bg-gray-50 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-indigo-500"
-            >
-              Cancel
-            </button>
-          </div>
-        )}
+        <button
+          onClick={() => setConfirmDelete(true)}
+          className="inline-flex items-center px-4 py-2 border border-transparent text-sm font-medium rounded-md shadow-sm text-white bg-red-600 hover:bg-red-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-red-500"
+        >
+          <TrashIcon className="h-4 w-4 mr-2" />
+          Delete
+        </button>
       </div>
+      
+      {/* Delete Confirmation Dialog */}
+      <DeleteConfirmationDialog
+        isOpen={confirmDelete}
+        onClose={() => setConfirmDelete(false)}
+        onConfirm={handleDelete}
+        title="Delete Document"
+        message={`Are you sure you want to delete "${document.documentName || document.title || 'this document'}"? This action cannot be undone.`}
+        confirmText="Delete"
+        cancelText="Cancel"
+      />
     </div>
   );
 }

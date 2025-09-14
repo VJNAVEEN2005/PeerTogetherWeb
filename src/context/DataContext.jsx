@@ -222,7 +222,8 @@ export function DataProvider({ children }) {
         })
         .then((snapshot) => {
           if (!snapshot.exists()) {
-            return set(ref(db, `Subjects/${department}`), { "dummy": true });
+            // Using a direct boolean value instead of an object
+            return set(ref(db, `Subjects/${department}`), true);
           }
           return Promise.resolve();
         })
@@ -233,7 +234,8 @@ export function DataProvider({ children }) {
         })
         .then((snapshot) => {
           if (!snapshot.exists()) {
-            return set(ref(db, `Subjects/${department}/${category}`), { "dummy": true });
+            // Using a direct boolean value instead of an object
+            return set(ref(db, `Subjects/${department}/${category}`), true);
           }
           return Promise.resolve();
         })
@@ -288,16 +290,16 @@ export function DataProvider({ children }) {
         })
         .then((snapshot) => {
           if (!snapshot.exists()) {
-            return set(ref(db, `Subjects/${department}`), { "dummy": true });
+            // Using a direct boolean value instead of an object
+            return set(ref(db, `Subjects/${department}`), true);
           }
           return Promise.resolve();
         })
         .then(() => {
           // Now we can safely add the category
-          // Need to use a dummy value that Firebase can store
           const pathRef = ref(db, `Subjects/${department}/${categoryName}`);
-          // Using a dummy subject to ensure the category is recognized
-          return set(pathRef, { "dummy": true });
+          // Using a direct boolean value instead of an object
+          return set(pathRef, true);
         })
         .then(() => {
           // Verify the write succeeded
@@ -352,9 +354,9 @@ export function DataProvider({ children }) {
           console.log('Created Subjects node in database');
         }
         
-        // Create the department with a dummy value
+        // Create the department with a direct boolean value
         const pathRef = ref(db, `Subjects/${departmentName}`);
-        await set(pathRef, { "dummy": true });
+        await set(pathRef, true);
         
         // Verify the write succeeded by reading back the data
         const verifyRef = ref(db, `Subjects/${departmentName}`);
