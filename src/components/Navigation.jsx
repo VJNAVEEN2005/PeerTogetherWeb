@@ -82,9 +82,9 @@ export default function Navigation() {
                     Admin
                   </button>
                 )}
-                <span className="text-white text-sm mr-2">
+                {/* <span className="text-white text-sm mr-2">
                   {currentUser.displayName}
-                </span>
+                </span> */}
                 <button 
                   onClick={() => {
                     logout();

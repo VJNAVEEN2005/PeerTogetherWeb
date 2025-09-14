@@ -404,7 +404,7 @@ function AdminPage() {
         </div>
         
         {/* Admin Password Change Section */}
-        <div className="border-t pt-6 mb-6">
+        {/* <div className="border-t pt-6 mb-6">
           <h2 className="text-lg font-medium mb-4">Change Admin Password</h2>
           <form onSubmit={handleChangePassword} className="space-y-4 max-w-md">
             <div>
@@ -446,7 +446,7 @@ function AdminPage() {
               </button>
             </div>
           </form>
-        </div>
+        </div> */}
         
         {/* Content Tabs */}
         <div className="mb-6 border-t pt-6">
