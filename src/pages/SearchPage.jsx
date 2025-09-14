@@ -13,8 +13,13 @@ export default function SearchPage() {
     academicYear: ''
   });
   const [filteredDocuments, setFilteredDocuments] = useState([]);
+  const [allDocuments, setAllDocuments] = useState([]);
   
-  const allDocuments = getAllDocuments();
+  // Get all documents once
+  useEffect(() => {
+    const documents = getAllDocuments();
+    setAllDocuments(documents);
+  }, [getAllDocuments]);
   
   // Extract unique values for filters
   const departments = [...new Set(allDocuments.map(doc => doc.department))];
