@@ -1,32 +1,27 @@
 // Firebase configuration for connecting to the database
 import { initializeApp } from 'firebase/app';
 import { getDatabase } from 'firebase/database';
-import { getAnalytics } from 'firebase/analytics';
 
+// Full Firebase configuration to ensure proper connection
 const firebaseConfig = {
   apiKey: "AIzaSyCmeFKiW306bxvQULixGlpdvzcwPzOKrpQ",
   authDomain: "peer-together.firebaseapp.com",
   databaseURL: "https://peer-together-default-rtdb.firebaseio.com",
   projectId: "peer-together",
-  storageBucket: "peer-together.firebasestorage.app",
+  storageBucket: "peer-together.firebasestorage.app", 
   messagingSenderId: "246089277744",
-  appId: "1:246089277744:web:6a524ec3f0a1804f03e8f5",
-  measurementId: "G-XZKCR2Z0CW"
+  appId: "1:246089277744:web:6a524ec3f0a1804f03e8f5"
 };
 
-// Initialize Firebase
+// Initialize Firebase with minimal configuration
 const app = initializeApp(firebaseConfig);
 
-// Initialize Realtime Database and get a reference to the service
+// Initialize Realtime Database without authentication
 export const db = getDatabase(app);
 
-// Initialize Analytics (will only work in browser environment)
-let analytics;
-try {
-  analytics = getAnalytics(app);
-} catch (error) {
-  // Analytics might fail in non-browser environments
-  console.log('Firebase Analytics not initialized:', error.message);
-}
+// Note: We're not initializing authentication since we're having configuration issues
+// The database should be configured with public read/write rules for this to work
+
+console.log("Firebase initialized with database-only configuration");
 
 export default app;

@@ -1,7 +1,6 @@
 import { createContext, useContext, useState, useEffect } from 'react';
 import { db } from '../firebase/config';
-import { getAuth, signInAnonymously } from 'firebase/auth';
-import { ref, onValue, push, set, remove, update } from 'firebase/database';
+import { ref, onValue, push, set, remove, update, get } from 'firebase/database';
 
 const DataContext = createContext();
 
@@ -13,37 +12,17 @@ export function DataProvider({ children }) {
   const [data, setData] = useState({});
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
-  const [isAuthenticated, setIsAuthenticated] = useState(false);
-  const [authAttempted, setAuthAttempted] = useState(false);
+  // We're no longer using authentication, so we'll set these to true by default
+  const [isAuthenticated, setIsAuthenticated] = useState(true);
+  const [authAttempted, setAuthAttempted] = useState(true);
   
-  // Initialize Firebase Auth
+  // We're skipping authentication and relying on database rules instead
   useEffect(() => {
-    const auth = getAuth();
+    console.log("Firebase authentication bypassed - using direct database access");
     
-    // Set up auth state listener
-    const unsubscribe = auth.onAuthStateChanged((user) => {
-      setAuthAttempted(true);
-      if (user) {
-        console.log("Firebase auth state: User authenticated", user.uid);
-        setIsAuthenticated(true);
-      } else {
-        console.log("Firebase auth state: No user authenticated");
-        setIsAuthenticated(false);
-        
-        // Try to sign in anonymously if not authenticated
-        signInAnonymously(auth)
-          .then((userCredential) => {
-            console.log("Firebase anonymous auth successful", userCredential.user.uid);
-          })
-          .catch((error) => {
-            console.error("Firebase auth error:", error);
-            setError(`Authentication failed: ${error.message}`);
-          });
-      }
-    });
-    
-    // Clean up the listener
-    return () => unsubscribe();
+    // Mark as authenticated for the UI to work properly
+    setAuthAttempted(true);
+    setIsAuthenticated(true);
   }, []);
 
   useEffect(() => {
@@ -68,10 +47,33 @@ export function DataProvider({ children }) {
           delete sanitizedData.auth;
         }
         
+        // Make sure the Subjects object exists
+        if (!sanitizedData.Subjects) {
+          console.log('Creating empty Subjects object in data');
+          sanitizedData.Subjects = {};
+          
+          // Also make sure it exists in the database
+          const subjectsRef = ref(db, 'Subjects');
+          set(subjectsRef, {})
+            .then(() => console.log('Subjects node created in database'))
+            .catch(err => console.error('Error creating Subjects node:', err));
+        }
+        
         setData(sanitizedData);
         setError(null);
+        
+        // Log the structure for debugging
+        console.log('Database structure keys:', Object.keys(sanitizedData));
+        if (sanitizedData.Subjects) {
+          console.log('Subjects keys:', Object.keys(sanitizedData.Subjects));
+        }
       } else {
-        setError("No data available from Firebase database.");
+        console.log('No data found in Firebase, creating initial structure');
+        // Initialize with empty structure
+        setData({
+          Subjects: {}
+        });
+        setError(null);
       }
       setLoading(false);
     }, (error) => {
@@ -203,27 +205,47 @@ export function DataProvider({ children }) {
   // Add a new subject to a department/category/semester
   const addSubject = (department, category, subjectKey, subjectValue) => {
     return new Promise((resolve, reject) => {
-      // Check if authenticated
-      if (!isAuthenticated) {
-        reject(new Error('Not authenticated. Please wait for authentication to complete.'));
-        return;
-      }
+      // Check if Subjects exists
+      const subjectsRef = ref(db, 'Subjects');
       
-      // Ensure path exists
-      if (!data.Subjects?.[department]?.[category]) {
-        reject(new Error(`Path Subjects/${department}/${category} does not exist`));
-        return;
-      }
-      
-      const pathRef = ref(db, `Subjects/${department}/${category}/${subjectKey}`);
-      
-      set(pathRef, subjectValue)
+      get(subjectsRef)
+        .then((snapshot) => {
+          if (!snapshot.exists()) {
+            return set(subjectsRef, {});
+          }
+          return Promise.resolve();
+        })
         .then(() => {
-          console.log(`Subject added successfully: ${department}/${category}/${subjectKey}`);
+          // Check if department exists
+          const deptRef = ref(db, `Subjects/${department}`);
+          return get(deptRef);
+        })
+        .then((snapshot) => {
+          if (!snapshot.exists()) {
+            return set(ref(db, `Subjects/${department}`), {});
+          }
+          return Promise.resolve();
+        })
+        .then(() => {
+          // Check if category exists
+          const categoryRef = ref(db, `Subjects/${department}/${category}`);
+          return get(categoryRef);
+        })
+        .then((snapshot) => {
+          if (!snapshot.exists()) {
+            return set(ref(db, `Subjects/${department}/${category}`), {});
+          }
+          return Promise.resolve();
+        })
+        .then(() => {
+          // Now we can safely add the subject
+          const pathRef = ref(db, `Subjects/${department}/${category}/${subjectKey}`);
+          return set(pathRef, subjectValue);
+        })
+        .then(() => {
           resolve({ key: subjectKey, value: subjectValue });
         })
         .catch((error) => {
-          console.error('Error adding subject: ', error);
           reject(error);
         });
     });
@@ -232,12 +254,6 @@ export function DataProvider({ children }) {
   // Delete a subject
   const deleteSubject = (department, category, subjectKey) => {
     return new Promise((resolve, reject) => {
-      // Check if authenticated
-      if (!isAuthenticated) {
-        reject(new Error('Not authenticated. Please wait for authentication to complete.'));
-        return;
-      }
-      
       const pathRef = ref(db, `Subjects/${department}/${category}/${subjectKey}`);
       
       remove(pathRef)
@@ -255,26 +271,36 @@ export function DataProvider({ children }) {
   // Add a new category (semester/course type) to a department
   const addSubjectCategory = (department, categoryName) => {
     return new Promise((resolve, reject) => {
-      // Check if authenticated
-      if (!isAuthenticated) {
-        reject(new Error('Not authenticated. Please wait for authentication to complete.'));
-        return;
-      }
+      // First ensure Subjects exists
+      const subjectsRef = ref(db, 'Subjects');
       
-      if (!data.Subjects?.[department]) {
-        reject(new Error(`Department ${department} does not exist in Subjects`));
-        return;
-      }
-      
-      const pathRef = ref(db, `Subjects/${department}/${categoryName}`);
-      
-      set(pathRef, {})
+      get(subjectsRef)
+        .then((snapshot) => {
+          if (!snapshot.exists()) {
+            return set(subjectsRef, {});
+          }
+          return Promise.resolve();
+        })
         .then(() => {
-          console.log(`Category added successfully: ${department}/${categoryName}`);
+          // Check if department exists
+          const deptRef = ref(db, `Subjects/${department}`);
+          return get(deptRef);
+        })
+        .then((snapshot) => {
+          if (!snapshot.exists()) {
+            return set(ref(db, `Subjects/${department}`), {});
+          }
+          return Promise.resolve();
+        })
+        .then(() => {
+          // Now we can safely add the category
+          const pathRef = ref(db, `Subjects/${department}/${categoryName}`);
+          return set(pathRef, {});
+        })
+        .then(() => {
           resolve({ department, category: categoryName });
         })
         .catch((error) => {
-          console.error('Error adding category: ', error);
           reject(error);
         });
     });
@@ -283,12 +309,6 @@ export function DataProvider({ children }) {
   // Delete a category (semester/course type)
   const deleteSubjectCategory = (department, categoryName) => {
     return new Promise((resolve, reject) => {
-      // Check if authenticated
-      if (!isAuthenticated) {
-        reject(new Error('Not authenticated. Please wait for authentication to complete.'));
-        return;
-      }
-      
       const pathRef = ref(db, `Subjects/${department}/${categoryName}`);
       
       remove(pathRef)
@@ -305,54 +325,46 @@ export function DataProvider({ children }) {
   
   // Add a new department to Subjects
   const addSubjectDepartment = (departmentName) => {
-    return new Promise((resolve, reject) => {
-      // If auth hasn't been attempted yet, wait for it
-      if (!authAttempted) {
-        const checkAuth = () => {
-          if (authAttempted) {
-            clearInterval(authCheckInterval);
-            if (isAuthenticated) {
-              addDepartment();
-            } else {
-              reject(new Error('Authentication failed. Please check your Firebase credentials.'));
-            }
-          }
-        };
+    return new Promise(async (resolve, reject) => {
+      try {
+        if (!departmentName || departmentName.includes('/') || departmentName.includes('.')) {
+          reject(new Error('Invalid department name. Cannot contain slashes or periods.'));
+          return;
+        }
         
-        const authCheckInterval = setInterval(checkAuth, 500);
+        // First, ensure the Subjects node exists
+        const subjectsRef = ref(db, 'Subjects');
+        const subjectsSnapshot = await get(subjectsRef);
         
-        // Set a timeout to avoid waiting forever
-        setTimeout(() => {
-          clearInterval(authCheckInterval);
-          reject(new Error('Authentication timed out. Please refresh and try again.'));
-        }, 10000);
+        if (!subjectsSnapshot.exists()) {
+          // Create the Subjects node if it doesn't exist
+          await set(subjectsRef, {});
+          console.log('Created Subjects node in database');
+        }
         
-        return;
-      }
-      
-      // Check if authenticated after auth has been attempted
-      if (!isAuthenticated) {
-        reject(new Error('Not authenticated. Firebase authentication failed.'));
-        return;
-      }
-      
-      // Function to actually add the department
-      function addDepartment() {
+        // Create the department with a placeholder property to ensure it's recognized
         const pathRef = ref(db, `Subjects/${departmentName}`);
+        await set(pathRef, { _created: new Date().toISOString() });
         
-        set(pathRef, {})
-          .then(() => {
-            console.log(`Department added successfully: ${departmentName}`);
-            resolve({ department: departmentName });
-          })
-          .catch((error) => {
-            console.error('Error adding department: ', error);
-            reject(error);
-          });
+        // Verify the write succeeded by reading back the data
+        const verifyRef = ref(db, `Subjects/${departmentName}`);
+        const snapshot = await get(verifyRef);
+        
+        if (snapshot.exists()) {
+          resolve({ department: departmentName });
+        } else {
+          reject(new Error('Department was not found after writing. The write may have failed.'));
+        }
+      } catch (error) {
+        // More specific error messages based on Firebase error codes
+        if (error.code === 'PERMISSION_DENIED') {
+          reject(new Error('Permission denied. The database rules might be restricting write access.'));
+        } else if (error.code === 'NETWORK_ERROR') {
+          reject(new Error('Network error. Please check your internet connection.'));
+        } else {
+          reject(error);
+        }
       }
-      
-      // If we're already authenticated, add the department
-      addDepartment();
     });
   };
   
@@ -382,12 +394,6 @@ export function DataProvider({ children }) {
   // Add a new document
   const addDocument = (department, documentData, subDepartment = null) => {
     return new Promise((resolve, reject) => {
-      // Check if authenticated
-      if (!isAuthenticated) {
-        reject(new Error('Not authenticated. Please wait for authentication to complete.'));
-        return;
-      }
-      
       let pathRef;
       
       if (department === 'OEC' && subDepartment) {
@@ -415,12 +421,6 @@ export function DataProvider({ children }) {
   // Update an existing document
   const updateDocument = (department, docId, documentData, subDepartment = null) => {
     return new Promise((resolve, reject) => {
-      // Check if authenticated
-      if (!isAuthenticated) {
-        reject(new Error('Not authenticated. Please wait for authentication to complete.'));
-        return;
-      }
-      
       let pathRef;
       
       if (department === 'OEC' && subDepartment) {

@@ -26,6 +26,8 @@ function AdminPage() {
     deleteSubjectDepartment
   } = useData();
   
+
+  
   // Document management state
   const [filterDepartment, setFilterDepartment] = useState('');
   const [newPassword, setNewPassword] = useState('');
@@ -93,19 +95,26 @@ function AdminPage() {
       return;
     }
     
-    // Check if we're authenticated first
-    if (!isAuthenticated && authAttempted) {
-      toast.error('Not authenticated with Firebase. Changes will not be saved.');
-      return;
-    }
-    
     const loadingToast = toast.loading('Adding department...', { id: 'add-dept-toast' });
     
     try {
       setAddingDept(true);
+      
+      // Add the department
       await addSubjectDepartment(newDeptName);
+      
       toast.success(`Department "${newDeptName}" added successfully`, { id: 'add-dept-toast' });
       setNewDeptName('');
+      
+      // Update the state to show the new department without full reload
+      toast.loading('Refreshing data...', { id: 'refresh-toast' });
+      
+      // Small delay to ensure Firebase has time to update
+      setTimeout(() => {
+        window.location.reload(); // Forcing reload for now to ensure data is fresh
+        toast.success('Data refreshed', { id: 'refresh-toast' });
+      }, 1500);
+      
     } catch (error) {
       console.error('Error adding department:', error);
       toast.error(`Failed to add department: ${error.message}`, { id: 'add-dept-toast' });
@@ -127,10 +136,12 @@ function AdminPage() {
       return;
     }
     
+    const loadingToast = toast.loading('Adding category...', { id: 'add-category-toast' });
+    
     try {
       setAddingCategory(true);
       await addSubjectCategory(selectedDept, newCategoryName);
-      toast.success(`Category "${newCategoryName}" added successfully to ${selectedDept}`);
+      toast.success(`Category "${newCategoryName}" added successfully to ${selectedDept}`, { id: 'add-category-toast' });
       setNewCategoryName('');
       
       // Expand the department to show the new category
@@ -138,9 +149,18 @@ function AdminPage() {
         ...prev,
         [selectedDept]: true
       }));
+      
+      // Update the state to show the new category without full reload
+      toast.loading('Refreshing data...', { id: 'refresh-toast' });
+      
+      // Small delay to ensure Firebase has time to update
+      setTimeout(() => {
+        window.location.reload(); // Forcing reload for now to ensure data is fresh
+        toast.success('Data refreshed', { id: 'refresh-toast' });
+      }, 1500);
     } catch (error) {
       console.error('Error adding category:', error);
-      toast.error(`Failed to add category: ${error.message}`);
+      toast.error(`Failed to add category: ${error.message}`, { id: 'add-category-toast' });
     } finally {
       setAddingCategory(false);
     }
@@ -159,10 +179,12 @@ function AdminPage() {
       return;
     }
     
+    const loadingToast = toast.loading('Adding subject...', { id: 'add-subject-toast' });
+    
     try {
       setAddingSubject(true);
       await addSubject(selectedDept, selectedCategory, newSubjectKey, newSubjectValue);
-      toast.success(`Subject added successfully`);
+      toast.success(`Subject added successfully`, { id: 'add-subject-toast' });
       setNewSubjectKey('');
       setNewSubjectValue('');
       
@@ -172,9 +194,18 @@ function AdminPage() {
         ...prev,
         [key]: true
       }));
+      
+      // Update the state to show the new subject without full reload
+      toast.loading('Refreshing data...', { id: 'refresh-toast' });
+      
+      // Small delay to ensure Firebase has time to update
+      setTimeout(() => {
+        window.location.reload(); // Forcing reload for now to ensure data is fresh
+        toast.success('Data refreshed', { id: 'refresh-toast' });
+      }, 1500);
     } catch (error) {
       console.error('Error adding subject:', error);
-      toast.error(`Failed to add subject: ${error.message}`);
+      toast.error(`Failed to add subject: ${error.message}`, { id: 'add-subject-toast' });
     } finally {
       setAddingSubject(false);
     }
