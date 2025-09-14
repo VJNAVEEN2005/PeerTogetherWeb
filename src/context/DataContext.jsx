@@ -222,7 +222,7 @@ export function DataProvider({ children }) {
         })
         .then((snapshot) => {
           if (!snapshot.exists()) {
-            return set(ref(db, `Subjects/${department}`), {});
+            return set(ref(db, `Subjects/${department}`), { "dummy": true });
           }
           return Promise.resolve();
         })
@@ -233,7 +233,7 @@ export function DataProvider({ children }) {
         })
         .then((snapshot) => {
           if (!snapshot.exists()) {
-            return set(ref(db, `Subjects/${department}/${category}`), {});
+            return set(ref(db, `Subjects/${department}/${category}`), { "dummy": true });
           }
           return Promise.resolve();
         })
@@ -288,17 +288,27 @@ export function DataProvider({ children }) {
         })
         .then((snapshot) => {
           if (!snapshot.exists()) {
-            return set(ref(db, `Subjects/${department}`), {});
+            return set(ref(db, `Subjects/${department}`), { "dummy": true });
           }
           return Promise.resolve();
         })
         .then(() => {
           // Now we can safely add the category
+          // Need to use a dummy value that Firebase can store
           const pathRef = ref(db, `Subjects/${department}/${categoryName}`);
-          return set(pathRef, {});
+          // Using a dummy subject to ensure the category is recognized
+          return set(pathRef, { "dummy": true });
         })
         .then(() => {
-          resolve({ department, category: categoryName });
+          // Verify the write succeeded
+          const verifyRef = ref(db, `Subjects/${department}/${categoryName}`);
+          return get(verifyRef).then(snapshot => {
+            if (snapshot.exists()) {
+              resolve({ department, category: categoryName });
+            } else {
+              throw new Error('Category was not found after writing. The write may have failed.');
+            }
+          });
         })
         .catch((error) => {
           reject(error);
@@ -342,9 +352,9 @@ export function DataProvider({ children }) {
           console.log('Created Subjects node in database');
         }
         
-        // Create the department with a placeholder property to ensure it's recognized
+        // Create the department with a dummy value
         const pathRef = ref(db, `Subjects/${departmentName}`);
-        await set(pathRef, { _created: new Date().toISOString() });
+        await set(pathRef, { "dummy": true });
         
         // Verify the write succeeded by reading back the data
         const verifyRef = ref(db, `Subjects/${departmentName}`);
