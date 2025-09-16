@@ -53,6 +53,7 @@ function AdminPage() {
   const [addingDept, setAddingDept] = useState(false);
   const [addingCategory, setAddingCategory] = useState(false);
   const [addingSubject, setAddingSubject] = useState(false);
+  const [keyUpdateTrigger, setKeyUpdateTrigger] = useState(0); // Trigger for key updates
   
   // Display authentication status message
   useEffect(() => {
@@ -64,6 +65,38 @@ function AdminPage() {
       toast.error('Firebase authentication failed. Changes will not be saved.', { id: 'auth-toast', duration: 5000 });
     }
   }, [isAuthenticated, authAttempted]);
+  
+  // Calculate the next available subject key
+  const calculateNextSubjectKey = () => {
+    if (selectedDept && selectedCategory && data.Subjects?.[selectedDept]?.[selectedCategory]) {
+      // Get existing subject keys and find the highest number
+      const existingKeys = Object.keys(data.Subjects[selectedDept][selectedCategory]);
+      let highestNum = 0;
+      
+      existingKeys.forEach(key => {
+        // Extract numbers from keys like "SUB-1", "SUB-2", etc.
+        const match = key.match(/\d+$/);
+        if (match) {
+          const num = parseInt(match[0], 10);
+          if (num > highestNum) {
+            highestNum = num;
+          }
+        }
+      });
+      
+      // Return the next number
+      return `SUB-${highestNum + 1}`;
+    } else {
+      // Default to SUB-1 if no existing subjects or category is not selected
+      return 'SUB-1';
+    }
+  };
+  
+  // Auto-generate subject key when needed
+  useEffect(() => {
+    const nextKey = calculateNextSubjectKey();
+    setNewSubjectKey(nextKey);
+  }, [selectedDept, selectedCategory, keyUpdateTrigger]);
   
   // Get all documents and filter if necessary
   const documents = getAllDocuments().filter(doc => 
@@ -145,8 +178,8 @@ function AdminPage() {
       return;
     }
     
-    if (!newCategoryName.trim()) {
-      toast.error('Category name cannot be empty');
+    if (!newCategoryName || !newCategoryName.trim()) {
+      toast.error('Please select or enter a category name');
       return;
     }
     
@@ -212,8 +245,13 @@ function AdminPage() {
       setAddingSubject(true);
       await addSubject(selectedDept, selectedCategory, newSubjectKey, newSubjectValue);
       toast.success(`Subject added successfully`, { id: 'add-subject-toast' });
-      setNewSubjectKey('');
+      
+      // Reset the subject value
       setNewSubjectValue('');
+      
+      // Trigger the recalculation of the next subject key
+      // This will cause the useEffect to run again with updated data
+      setKeyUpdateTrigger(prev => prev + 1);
       
       // Expand the category to show the new subject
       const key = `${selectedDept}-${selectedCategory}`;
@@ -236,8 +274,20 @@ function AdminPage() {
         data.Subjects[selectedDept][selectedCategory] = {};
       }
       
-      // Add the subject to our local data
-      data.Subjects[selectedDept][selectedCategory][newSubjectKey] = newSubjectValue;
+      // Create a new reference to ensure React detects the change
+      const updatedSubjects = {
+        ...data.Subjects,
+        [selectedDept]: {
+          ...data.Subjects[selectedDept],
+          [selectedCategory]: {
+            ...data.Subjects[selectedDept][selectedCategory],
+            [newSubjectKey]: newSubjectValue
+          }
+        }
+      };
+      
+      // Update the data object with the new reference
+      data.Subjects = updatedSubjects;
     } catch (error) {
       console.error('Error adding subject:', error);
       toast.error(`Failed to add subject: ${error.message}`, { id: 'add-subject-toast' });
@@ -715,14 +765,32 @@ function AdminPage() {
                         <label htmlFor="newCategoryName" className="block text-sm font-medium text-gray-700">
                           Category/Semester Name
                         </label>
-                        <input
-                          type="text"
+                        <select
                           id="newCategoryName"
                           value={newCategoryName}
                           onChange={(e) => setNewCategoryName(e.target.value)}
                           className="mt-1 block w-full border border-gray-300 rounded-md shadow-sm py-2 px-3 focus:outline-none focus:ring-blue-500 focus:border-blue-500 text-sm"
                           required
-                        />
+                        >
+                          <option value="">Select Category/Semester</option>
+                          <option value="SEM-I">SEM-I</option>
+                          <option value="SEM-II">SEM-II</option>
+                          <option value="SEM-III">SEM-III</option>
+                          <option value="SEM-IV">SEM-IV</option>
+                          <option value="SEM-V">SEM-V</option>
+                          <option value="SEM-VI">SEM-VI</option>
+                          <option value="SEM-VII">SEM-VII</option>
+                          <option value="PEC">PEC</option>
+                          <option value="OEC">OEC</option>
+                        </select>
+                        {newCategoryName === "Other" && (
+                          <input
+                            type="text"
+                            placeholder="Enter custom category name"
+                            className="mt-2 block w-full border border-gray-300 rounded-md shadow-sm py-2 px-3 focus:outline-none focus:ring-blue-500 focus:border-blue-500 text-sm"
+                            onChange={(e) => setNewCategoryName(e.target.value)}
+                          />
+                        )}
                       </div>
                       <button
                         type="submit"
@@ -788,14 +856,14 @@ function AdminPage() {
                       
                       <div>
                         <label htmlFor="newSubjectKey" className="block text-sm font-medium text-gray-700">
-                          Subject Key (e.g., SUB-1)
+                          Subject Key (Auto-generated)
                         </label>
                         <input
                           type="text"
                           id="newSubjectKey"
                           value={newSubjectKey}
-                          onChange={(e) => setNewSubjectKey(e.target.value)}
-                          className="mt-1 block w-full border border-gray-300 rounded-md shadow-sm py-2 px-3 focus:outline-none focus:ring-blue-500 focus:border-blue-500 text-sm"
+                          readOnly
+                          className="mt-1 block w-full border border-gray-300 rounded-md shadow-sm py-2 px-3 bg-gray-50 text-gray-600 focus:outline-none focus:ring-blue-500 focus:border-blue-500 text-sm cursor-not-allowed"
                           required
                         />
                       </div>
