@@ -12,13 +12,22 @@ export default function Navigation() {
   const navigate = useNavigate();
   const departments = getDepartments();
   
+  // Don't show navigation on landing page if user is not logged in
+  const isLandingPage = location.pathname === '/';
+  
   // This function will handle navigation to the home page with a force refresh
   const handleHomeNavigation = () => {
-    if (location.pathname === '/search') {
-      // We're coming from search page, use window.location for a full refresh
-      window.location.href = '/';
+    if (currentUser) {
+      // If user is logged in, go to the protected home
+      if (location.pathname === '/search') {
+        // We're coming from search page, use window.location for a full refresh
+        window.location.href = '/home';
+      } else {
+        // Normal navigation for other routes
+        navigate('/home');
+      }
     } else {
-      // Normal navigation for other routes
+      // If not logged in, go to the landing page
       navigate('/');
     }
   };

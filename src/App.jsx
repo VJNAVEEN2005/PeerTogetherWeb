@@ -6,6 +6,7 @@ import Navigation from './components/Navigation';
 import ProtectedRoute from './components/ProtectedRoute';
 import ProtectedHome from './components/ProtectedHome';
 import HomePage from './pages/HomePage';
+import LandingPage from './pages/LandingPage';
 import DepartmentPage from './pages/DepartmentPage';
 import CategoryPage from './pages/CategoryPage';
 import DocumentDetailPage from './pages/DocumentDetailPage';
@@ -25,57 +26,87 @@ function App() {
         <Router>
           <div className="min-h-screen bg-gray-100">
             <Toaster position="top-right" />
-            <Navigation />
-            <main className="py-8 px-0">
+            <Routes>
+              <Route path="/" element={null} />
+              <Route path="*" element={<Navigation />} />
+            </Routes>
+            <main>
               <Routes>
-                <Route path="/" element={<ProtectedHome />} />
-                <Route path="/login" element={<LoginPage />} />
+                <Route path="/" element={<LandingPage />} />
+                <Route path="/home" element={
+                  <div className="py-8 px-0">
+                    <ProtectedHome />
+                  </div>
+                } />
+                <Route path="/login" element={
+                  <div className="py-8 px-0">
+                    <LoginPage />
+                  </div>
+                } />
                 <Route 
                   path="/admin" 
                   element={
                     <ProtectedRoute requireAdmin={true}>
-                      <AdminPage />
+                      <div className="py-8 px-0">
+                        <AdminPage />
+                      </div>
                     </ProtectedRoute>
                   } 
                 />
                 <Route path="/department/OEC" element={
                   <ProtectedRoute>
-                    <OECDepartmentPage />
+                    <div className="py-8 px-0">
+                      <OECDepartmentPage />
+                    </div>
                   </ProtectedRoute>
                 } />
                 <Route path="/department/OEC/:subDepartment" element={
                   <ProtectedRoute>
-                    <OECDocumentsPage />
+                    <div className="py-8 px-0">
+                      <OECDocumentsPage />
+                    </div>
                   </ProtectedRoute>
                 } />
                 <Route path="/department/:department" element={
                   <ProtectedRoute>
-                    <DepartmentPage />
+                    <div className="py-8 px-0">
+                      <DepartmentPage />
+                    </div>
                   </ProtectedRoute>
                 } />
                 <Route path="/department/:department/semester/:semester" element={
                   <ProtectedRoute>
-                    <DepartmentPage />
+                    <div className="py-8 px-0">
+                      <DepartmentPage />
+                    </div>
                   </ProtectedRoute>
                 } />
                 <Route path="/department/:department/document/:id" element={
                   <ProtectedRoute>
-                    <DocumentDetailPage />
+                    <div className="py-8 px-0">
+                      <DocumentDetailPage />
+                    </div>
                   </ProtectedRoute>
                 } />
                 <Route path="/category/:categoryName" element={
                   <ProtectedRoute>
-                    <CategoryPage />
+                    <div className="py-8 px-0">
+                      <CategoryPage />
+                    </div>
                   </ProtectedRoute>
                 } />
                 <Route path="/search" element={
                   <ProtectedRoute>
-                    <SearchPage />
+                    <div className="py-8 px-0">
+                      <SearchPage />
+                    </div>
                   </ProtectedRoute>
                 } />
                 <Route path="*" element={
                   <ProtectedRoute>
-                    <NotFoundPage />
+                    <div className="py-8 px-0">
+                      <NotFoundPage />
+                    </div>
                   </ProtectedRoute>
                 } />
               </Routes>
